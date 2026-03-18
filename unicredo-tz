@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:13px;color:#1a1a1a;background:#f4f4f0;padding:20px 12px}
+.page{max-width:900px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.07)}
+.cover{background:#0f172a;color:#fff;padding:32px 36px}
+.cover h1{font-size:20px;font-weight:700;margin-bottom:6px}
+.cover .sub{font-size:12px;color:#94a3b8;margin-bottom:16px}
+.meta{display:flex;gap:20px;flex-wrap:wrap}
+.meta span{font-size:11px;color:#64748b}
+.meta strong{color:#94a3b8}
+.body{padding:28px 36px}
+
+/* MODULE */
+.mod{border:1px solid #e5e7eb;border-radius:8px;margin-bottom:20px;overflow:hidden}
+.mod-hdr{background:#f8fafc;padding:11px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;border-bottom:1px solid #e5e7eb}
+.mod-hdr:hover{background:#f1f5f9}
+.mn{background:#0f172a;color:#fff;font-size:10px;font-weight:700;border-radius:3px;padding:2px 7px}
+.mt{font-size:14px;font-weight:700;flex:1}
+.own{font-size:11px;color:#64748b;margin-right:6px}
+.chv{font-size:11px;color:#94a3b8;transition:transform .15s}
+.chv.open{transform:rotate(90deg)}
+.mod-body{display:none;padding:0}
+.mod-body.open{display:block}
+
+/* CONTEXT */
+.ctx{padding:12px 18px;background:#fafafa;border-bottom:1px solid #f0f0f0;font-size:12.5px;color:#444;line-height:1.7}
+
+/* ENDPOINT */
+.ep{border-bottom:1px solid #f1f5f9;padding:14px 18px}
+.ep:last-child{border-bottom:none}
+.ep-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.m{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:2px 7px;font-family:monospace}
+.GET{background:#dcfce7;color:#166534}
+.POST{background:#dbeafe;color:#1e40af}
+.PATCH{background:#fef9c3;color:#854d0e}
+.DELETE{background:#fee2e2;color:#991b1b}
+.url{font-family:monospace;font-size:12px;color:#0f172a;background:#f1f5f9;padding:3px 8px;border-radius:4px}
+.new{font-size:10px;font-weight:700;background:#ede9fe;color:#5b21b6;border-radius:3px;padding:1px 6px}
+.cron{font-size:10px;font-weight:700;background:#fff7ed;color:#9a3412;border-radius:3px;padding:1px 6px}
+.ep-desc{font-size:12.5px;color:#374151;line-height:1.65;margin-bottom:8px}
+
+/* LOGIC */
+.logic{background:#f8fafc;border-radius:5px;padding:8px 12px;margin:6px 0}
+.logic-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:5px}
+ul.lg{list-style:none;padding:0}
+ul.lg li{position:relative;padding:3px 0 3px 14px;font-size:12px;color:#374151;line-height:1.5;border-bottom:1px solid #f1f5f9}
+ul.lg li:last-child{border-bottom:none}
+ul.lg li::before{content:"→";position:absolute;left:0;color:#94a3b8;font-size:11px}
+
+/* COLLAPSIBLE REQ/RES */
+.rr-wrap{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.rr-box{flex:1;min-width:200px;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden}
+.rr-hdr{display:flex;align-items:center;gap:6px;padding:7px 10px;cursor:pointer;user-select:none;background:#f8fafc;border-bottom:1px solid #e5e7eb}
+.rr-hdr:hover{background:#f1f5f9}
+.rr-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;flex:1}
+.rr-badge-req{font-size:10px;background:#dbeafe;color:#1e40af;border-radius:3px;padding:1px 6px;font-weight:700}
+.rr-badge-res{font-size:10px;background:#dcfce7;color:#166534;border-radius:3px;padding:1px 6px;font-weight:700}
+.rr-chv{font-size:10px;color:#94a3b8;transition:transform .15s}
+.rr-chv.open{transform:rotate(90deg)}
+.rr-body{display:none;padding:0}
+.rr-body.open{display:block}
+.ftable{width:100%;border-collapse:collapse;font-size:12px}
+.ftable th{text-align:left;font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid #f1f5f9;padding:5px 8px}
+.ftable td{padding:5px 8px;border-bottom:1px solid #fafafa;vertical-align:top;line-height:1.45}
+.ftable tr:last-child td{border-bottom:none}
+.fn{font-family:monospace;font-size:11px;color:#7c3aed}
+.ft{font-family:monospace;font-size:10px;background:#e0f2fe;color:#0369a1;padding:1px 4px;border-radius:3px}
+.fr{font-size:10px;color:#dc2626;font-weight:700}
+.fo{font-size:10px;color:#94a3b8}
+.note{background:#fffbf0;border-left:3px solid #f59e0b;padding:6px 10px;font-size:11.5px;color:#555;margin:6px 0;border-radius:0 4px 4px 0}
+.warn{background:#fef2f2;border-left:3px solid #ef4444;padding:6px 10px;font-size:11.5px;color:#555;margin:6px 0;border-radius:0 4px 4px 0}
+
+.footer{border-top:1px solid #eee;padding:12px 36px;display:flex;justify-content:space-between;font-size:10px;color:#aaa}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="cover">
+  <h1>ТЗ Backend — CRM МФО Юникредо</h1>
+  <div class="sub">Бизнес-модули · Задачи · Эндпоинты · Python REST API</div>
+  <div class="meta">
+    <span><strong>Версия:</strong> 1.0 Draft</span>
+    <span><strong>Дата:</strong> 19.03.2026</span>
+    <span><strong>Статус:</strong> На согласовании</span>
+  </div>
+</div>
+<div class="body">
+
+<!-- ====== 01 AUTH ====== -->
+<div class="mod">
+  <div class="mod-hdr" onclick="togMod(this)">
+    <span class="mn">01</span><span class="mt">Auth / RBAC</span>
+    <span class="own">Бэкенд-лид</span><span class="chv open">▶</span>
+  </div>
+  <div class="mod-body open">
+    <div class="ctx">Реализовать JWT-авторизацию и ролевую модель доступа. Все роли и права хранятся в БД — администратор меняет без деплоя. Каждое действие логируется: кто, что, когда.</div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/auth/login</span></div>
+      <div class="ep-desc">Принимает логин и пароль, возвращает токены. В ответе сразу список permissions — фронт строит меню на его основе, без отдельного запроса.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv open">▶</span></div>
+          <div class="rr-body open"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">email</span></td><td><span class="ft">string</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">password</span></td><td><span class="ft">string</span></td><td><span class="fr">req</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv open">▶</span></div>
+          <div class="rr-body open"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">access_token</span></td><td><span class="ft">string (JWT)</span></td></tr>
+            <tr><td><span class="fn">refresh_token</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">user.id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">user.role</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">user.permissions</span></td><td><span class="ft">string[]</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m PATCH">PATCH</span><span class="url">/roles/{id}/permissions</span></div>
+      <div class="ep-desc">Изменение набора прав роли без перезапуска сервера. Вступает в силу при следующем запросе пользователя.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">permissions</span></td><td><span class="ft">string[]</span></td><td><span class="fr">req</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">role_id</span></td><td><span class="ft">int</span></td></tr>
+            <tr><td><span class="fn">role_name</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">permissions</span></td><td><span class="ft">string[]</span></td></tr>
+            <tr><td><span class="fn">updated_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 02 APPLICATIONS ====== -->
+<div class="mod">
+  <div class="mod-hdr" onclick="togMod(this)">
+    <span class="mn">02</span><span class="mt">Заявки (Applications)</span>
+    <span class="own">Backend Dev #1</span><span class="chv">▶</span>
+  </div>
+  <div class="mod-body">
+    <div class="ctx">Центральная сущность. Жизненный цикл со строгой матрицей переходов — каждый переход логируется с автором и временем. Два ключевых требования: (1) автоотмена если клиент не подписал за 24 ч, (2) одобрение на альтернативную меньшую сумму с пересчётом условий.</div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m GET">GET</span><span class="url">/applications</span></div>
+      <div class="ep-desc">Список заявок. Каждая роль видит только свои заявки — контролируется на уровне сервиса по permission пользователя.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Query params</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">status</span></td><td><span class="ft">enum</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">product_type</span></td><td><span class="ft">enum</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">assigned_to</span></td><td><span class="ft">uuid</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">date_from / date_to</span></td><td><span class="ft">date</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">page / limit</span></td><td><span class="ft">int</span></td><td><span class="fo">opt</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">items[].id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">items[].client_name</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">items[].status</span></td><td><span class="ft">enum</span></td></tr>
+            <tr><td><span class="fn">items[].product_type</span></td><td><span class="ft">enum</span></td></tr>
+            <tr><td><span class="fn">items[].requested_amount</span></td><td><span class="ft">decimal</span></td></tr>
+            <tr><td><span class="fn">items[].overdue_days</span></td><td><span class="ft">int</span></td></tr>
+            <tr><td><span class="fn">items[].created_at</span></td><td><span class="ft">datetime</span></td></tr>
+            <tr><td><span class="fn">total / page / limit</span></td><td><span class="ft">int</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m GET">GET</span><span class="url">/applications/{id}</span></div>
+      <div class="ep-desc">Полная карточка заявки. Собирает клиента, продукт, ПКБ-отчёт (кэш 24 ч), историю статусов и документы. Основной экран верификатора — всё без переключения вкладок.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Path param</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">id</span></td><td><span class="ft">uuid</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">id / status</span></td><td><span class="ft">uuid / enum</span></td></tr>
+            <tr><td><span class="fn">client</span></td><td><span class="ft">object</span></td></tr>
+            <tr><td><span class="fn">product</span></td><td><span class="ft">object</span></td></tr>
+            <tr><td><span class="fn">requested_amount</span></td><td><span class="ft">decimal</span></td></tr>
+            <tr><td><span class="fn">approved_amount</span></td><td><span class="ft">decimal | null</span></td></tr>
+            <tr><td><span class="fn">sign_expires_at</span></td><td><span class="ft">datetime | null</span></td></tr>
+            <tr><td><span class="fn">pkb_report</span></td><td><span class="ft">object</span></td></tr>
+            <tr><td><span class="fn">history[]</span></td><td><span class="ft">array</span></td></tr>
+            <tr><td><span class="fn">documents[]</span></td><td><span class="ft">array</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m PATCH">PATCH</span><span class="url">/applications/{id}/approve</span><span class="new">New</span></div>
+      <div class="ep-desc">Одобрение заявки. Если approved_amount ≠ requested_amount — пересчитываем вознаграждение и ГЭСВ. После одобрения запускается таймер 24 ч.</div>
+      <div class="logic">
+        <div class="logic-lbl">Бизнес-правила</div>
+        <ul class="lg">
+          <li>approved_amount ≤ requested_amount — нельзя одобрить больше чем запросил клиент</li>
+          <li>approved_amount не ниже min_amount продукта</li>
+          <li>После одобрения — SMS клиенту со ссылкой на подписание</li>
+          <li>sign_expires_at = now() + 24h — CRON проверяет каждые 10 минут</li>
+        </ul>
+      </div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">approved_amount</span></td><td><span class="ft">decimal</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">comment</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">status</span></td><td><span class="ft">APPROVED</span></td></tr>
+            <tr><td><span class="fn">approved_amount</span></td><td><span class="ft">decimal</span></td></tr>
+            <tr><td><span class="fn">recalculated_reward</span></td><td><span class="ft">decimal</span></td></tr>
+            <tr><td><span class="fn">recalculated_apr</span></td><td><span class="ft">decimal</span></td></tr>
+            <tr><td><span class="fn">sign_expires_at</span></td><td><span class="ft">datetime (+24h)</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m PATCH">PATCH</span><span class="url">/applications/{id}/reject</span></div>
+      <div class="ep-desc">Отказ по заявке. Без reject_reason → 422. Пустая строка не принимается.</div>
+      <div class="warn">Без reject_reason → 422 Unprocessable Entity. Пустая строка тоже не принимается.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">reject_reason</span></td><td><span class="ft">string</span></td><td><span class="fr">req</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">status</span></td><td><span class="ft">REJECTED</span></td></tr>
+            <tr><td><span class="fn">reject_reason</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">rejected_by</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">rejected_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m PATCH">PATCH</span><span class="url">/applications/{id}/serve</span></div>
+      <div class="ep-desc">Кассир нажимает «Обслуживать займ» после отправки денег через БЦК. Фиксируем кто и когда нажал, переводим в FUNDS_SENT.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">bank_transaction_ref</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">status</span></td><td><span class="ft">FUNDS_SENT</span></td></tr>
+            <tr><td><span class="fn">served_by</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">served_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ====== 03 CLIENTS ====== -->
+<div class="mod">
+  <div class="mod-hdr" onclick="togMod(this)">
+    <span class="mn">03</span><span class="mt">Клиенты (Clients)</span>
+    <span class="own">Backend Dev #1</span><span class="chv">▶</span>
+  </div>
+  <div class="mod-body">
+    <div class="ctx">Верификация email при регистрации — без подтверждённого адреса нельзя отправить досудебное уведомление. ПКБ-отчёт кэшируется 24 ч и подтягивается в карточку автоматически.</div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/clients/{id}/verify-email</span><span class="new">New</span></div>
+      <div class="ep-desc">Отправляет код на email клиента. Код живёт 15 минут. Повторный запрос раньше истечения → 429.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">email</span></td><td><span class="ft">string</span></td><td><span class="fr">req</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">message</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">expires_in</span></td><td><span class="ft">int (сек)</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/clients/{id}/confirm-email</span></div>
+      <div class="ep-desc">Подтверждение кода. При успехе email_verified = true — разблокируется отправка досудебных уведомлений и писем по медиации.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">code</span></td><td><span class="ft">string</span></td><td><span class="fr">req</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">email_verified</span></td><td><span class="ft">bool → true</span></td></tr>
+            <tr><td><span class="fn">verified_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m PATCH">PATCH</span><span class="url">/clients/{id}</span></div>
+      <div class="ep-desc">Обновление анкеты. business_type обязателен если продукт ENTREPRENEURIAL — валидировать на уровне сервиса, не только на фронте.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">phone</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">address</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">iban</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">employment_status</span></td><td><span class="ft">enum</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">business_type</span></td><td><span class="ft">string</span></td><td><span class="fo">req если предприн.</span></td></tr>
+            <tr><td><span class="fn">card_photo_url</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">iin / full_name</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">email / email_verified</span></td><td><span class="ft">string / bool</span></td></tr>
+            <tr><td><span class="fn">iban</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">updated_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 04 PAYMENTS ====== -->
+<div class="mod">
+  <div class="mod-hdr" onclick="togMod(this)">
+    <span class="mn">04</span><span class="mt">Платежи (Payments)</span>
+    <span class="own">Backend Dev #2</span><span class="chv">▶</span>
+  </div>
+  <div class="mod-body">
+    <div class="ctx">Два источника: вебхук от платёжных организаций и CSV-выписка из 1С. Несовпавшие по ИИН — в очередь для ручной привязки. Только полное погашение. Пеня — CRON ежедневно.</div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/payments/webhook</span></div>
+      <div class="ep-desc">Вебхук от платёжных организаций. Идемпотентность по transaction_id обязательна — дубль игнорируется с ответом 200.</div>
+      <div class="logic">
+        <div class="logic-lbl">Бизнес-правила</div>
+        <ul class="lg">
+          <li>Проверить transaction_id на дубль перед записью</li>
+          <li>Сопоставить по ИИН с активным займом клиента</li>
+          <li>Платёж ≥ остатка долга → статус займа CLOSED</li>
+          <li>ИИН не найден → записать как unmatched, уведомить финаналитика</li>
+        </ul>
+      </div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">transaction_id</span></td><td><span class="ft">string</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">iin</span></td><td><span class="ft">string</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">amount</span></td><td><span class="ft">decimal</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">paid_at</span></td><td><span class="ft">datetime</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">source</span></td><td><span class="ft">string</span></td><td><span class="fr">req</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">payment_id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">loan_id</span></td><td><span class="ft">uuid | null</span></td></tr>
+            <tr><td><span class="fn">status</span></td><td><span class="ft">MATCHED / UNMATCHED</span></td></tr>
+            <tr><td><span class="fn">loan_closed</span></td><td><span class="ft">bool</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/payments/upload-statement</span></div>
+      <div class="ep-desc">Загрузка CSV-выписки из 1С. Авто-сопоставление по ИИН. Несовпавшие строки → unmatched_items для ручной привязки.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request (multipart)</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">file</span></td><td><span class="ft">file (.csv)</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">bank</span></td><td><span class="ft">enum: HALYK / BCK</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">period_from</span></td><td><span class="ft">date</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">period_to</span></td><td><span class="ft">date</span></td><td><span class="fr">req</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">total_rows</span></td><td><span class="ft">int</span></td></tr>
+            <tr><td><span class="fn">matched</span></td><td><span class="ft">int</span></td></tr>
+            <tr><td><span class="fn">unmatched</span></td><td><span class="ft">int</span></td></tr>
+            <tr><td><span class="fn">unmatched_items[]</span></td><td><span class="ft">array</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/loans/{id}/write-off</span></div>
+      <div class="ep-desc">Списание задолженности при банкротстве, смерти клиента или по судебному решению. Логируется с user_id и документом-основанием.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">type</span></td><td><span class="ft">enum: FULL / PARTIAL</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">amount</span></td><td><span class="ft">decimal</span></td><td><span class="fo">req если PARTIAL</span></td></tr>
+            <tr><td><span class="fn">reason</span></td><td><span class="ft">string</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">document_url</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">loan_id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">written_off_amount</span></td><td><span class="ft">decimal</span></td></tr>
+            <tr><td><span class="fn">remaining_debt</span></td><td><span class="ft">decimal</span></td></tr>
+            <tr><td><span class="fn">performed_by</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">performed_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 05 SCORING ====== -->
+<div class="mod">
+  <div class="mod-hdr" onclick="togMod(this)">
+    <span class="mn">05</span><span class="mt">Авто-одобрение (Scoring)</span>
+    <span class="own">Backend Dev #2</span><span class="chv">▶</span>
+  </div>
+  <div class="mod-body">
+    <div class="ctx">Rule Engine по 10 правилам. Правила в БД с флагом is_active и порогами в JSONB — меняются без деплоя. При совпадении первого → AUTO_APPROVED. Базовое условие всех правил: возраст ≥ 21 года.</div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/scoring/evaluate/{application_id}</span></div>
+      <div class="ep-desc">Запуск скоринга при создании заявки. Если кэша ПКБ нет — делаем свежий запрос. Ответ содержит какое правило сработало — для аудита.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Path param</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">application_id</span></td><td><span class="ft">uuid</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">result</span></td><td><span class="ft">AUTO_APPROVED / MANUAL</span></td></tr>
+            <tr><td><span class="fn">matched_rule_id</span></td><td><span class="ft">int | null</span></td></tr>
+            <tr><td><span class="fn">matched_rule_name</span></td><td><span class="ft">string | null</span></td></tr>
+            <tr><td><span class="fn">checked_rules_count</span></td><td><span class="ft">int</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m PATCH">PATCH</span><span class="url">/scoring/rules/{id}</span></div>
+      <div class="ep-desc">Включить/выключить правило или поменять пороги. Только для администратора. Вступает в силу немедленно для новых заявок.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">is_active</span></td><td><span class="ft">bool</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">conditions</span></td><td><span class="ft">JSONB</span></td><td><span class="fo">opt — пороговые значения</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">id / name</span></td><td><span class="ft">int / string</span></td></tr>
+            <tr><td><span class="fn">is_active</span></td><td><span class="ft">bool</span></td></tr>
+            <tr><td><span class="fn">conditions</span></td><td><span class="ft">object</span></td></tr>
+            <tr><td><span class="fn">updated_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 06 COLLECTIONS ====== -->
+<div class="mod">
+  <div class="mod-hdr" onclick="togMod(this)">
+    <span class="mn">06</span><span class="mt">Просрочка (Collections)</span>
+    <span class="own">Backend Dev #2</span><span class="chv">▶</span>
+  </div>
+  <div class="mod-body">
+    <div class="ctx">С 1-го дня просрочки — авто-создание карточки и распределение между коллекторами. CRON: день 1 — распределение, день 10 — досудебное на email, день 41 — передача медиатору.</div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m PATCH">PATCH</span><span class="url">/collections/{id}/stage</span></div>
+      <div class="ep-desc">Изменение стадии просрочки. Логируется с user_id — кто и когда поменял. Используется коллекторами и отделом мониторинга.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">stage</span></td><td><span class="ft">enum</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">comment</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">loan_id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">stage</span></td><td><span class="ft">enum</span></td></tr>
+            <tr><td><span class="fn">changed_by</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">changed_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/collections/{id}/contact-log</span></div>
+      <div class="ep-desc">Фиксация результата звонка. История контактов видна всем у кого есть доступ к карточке. PROMISE → можно указать дату следующего контакта.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">result</span></td><td><span class="ft">enum: ANSWERED / NO_ANSWER / PROMISE / REFUSED</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">comment</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">next_contact_date</span></td><td><span class="ft">date</span></td><td><span class="fo">opt</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">log_id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">loan_id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">result</span></td><td><span class="ft">enum</span></td></tr>
+            <tr><td><span class="fn">next_contact_date</span></td><td><span class="ft">date | null</span></td></tr>
+            <tr><td><span class="fn">created_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 07 MEDIATION ====== -->
+<div class="mod">
+  <div class="mod-hdr" onclick="togMod(this)">
+    <span class="mn">07</span><span class="mt">Медиация (Mediation)</span>
+    <span class="own">Backend Dev #3</span><span class="chv">▶</span>
+  </div>
+  <div class="mod-body">
+    <div class="ctx">Сейчас подготовка документов — 2–3 рабочих дня вручную. Нужен шаблонизатор с автоподстановкой данных. Все документы переходят из WhatsApp в ЛК клиента — подписание через ЭЦП.</div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/mediations/{id}/schedule</span></div>
+      <div class="ep-desc">Создание графика погашения. Система разбивает total_debt на равные платежи. График сразу виден клиенту в ЛК.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">term_months</span></td><td><span class="ft">enum: 3/6/9/12</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">first_payment_date</span></td><td><span class="ft">date</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">total_debt</span></td><td><span class="ft">decimal</span></td><td><span class="fr">req</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 201</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">schedule_id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">payments[].date</span></td><td><span class="ft">date</span></td></tr>
+            <tr><td><span class="fn">payments[].amount</span></td><td><span class="ft">decimal</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/mediations/{id}/generate-docs</span><span class="new">New</span></div>
+      <div class="ep-desc">Генерация пакета документов по шаблону. Данные подставляются из карточки займа автоматически. Раньше — 2–3 дня вручную. Теперь — секунды.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">template_ids</span></td><td><span class="ft">int[]</span></td><td><span class="fr">req</span></td></tr>
+          </tbody></table>
+          <div class="note" style="margin:6px 8px">Данные для подстановки берутся автоматически из карточки займа</div>
+          </div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">documents[].type</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">documents[].url</span></td><td><span class="ft">string (PDF)</span></td></tr>
+            <tr><td><span class="fn">generated_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 08 LEGAL ====== -->
+<div class="mod">
+  <div class="mod-hdr" onclick="togMod(this)">
+    <span class="mn">08</span><span class="mt">Судебное взыскание (Legal)</span>
+    <span class="own">Backend Dev #3</span><span class="chv">▶</span>
+  </div>
+  <div class="mod-body">
+    <div class="ctx">Два ключевых новых функционала: (1) массовая генерация исков — ZIP с документами на каждого должника, (2) судебные документы в ЛК с автофиксацией даты ознакомления при первом открытии.</div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/legal/claims/bulk-generate</span><span class="new">New</span></div>
+      <div class="ep-desc">Массовая генерация исков. Тип иска определяется по продукту через справочник. Результат — ZIP-архив с папками по каждому должнику.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">loan_ids</span></td><td><span class="ft">uuid[]</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">claim_type_id</span></td><td><span class="ft">int</span></td><td><span class="fo">opt — авто из справочника</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">total</span></td><td><span class="ft">int</span></td></tr>
+            <tr><td><span class="fn">archive_url</span></td><td><span class="ft">string (ZIP)</span></td></tr>
+            <tr><td><span class="fn">generated_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/legal/{id}/documents</span><span class="new">New</span></div>
+      <div class="ep-desc">Загрузка судебного документа. При первом открытии клиентом в ЛК — автоматически заполняется document_viewed_at. Юридически значимая дата.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request (multipart)</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">file</span></td><td><span class="ft">file (PDF)</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">doc_type</span></td><td><span class="ft">enum</span></td><td><span class="fr">req</span></td></tr>
+            <tr><td><span class="fn">visible_to_client</span></td><td><span class="ft">bool</span></td><td><span class="fo">default true</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 201</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">document_id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">url</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">doc_type</span></td><td><span class="ft">string</span></td></tr>
+            <tr><td><span class="fn">visible_to_client</span></td><td><span class="ft">bool</span></td></tr>
+            <tr><td><span class="fn">document_viewed_at</span></td><td><span class="ft">datetime | null</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ep">
+      <div class="ep-head"><span class="m POST">POST</span><span class="url">/legal/{id}/court-costs</span></div>
+      <div class="ep-desc">Добавление судебных расходов вручную после возбуждения производства. Суммируется и добавляется к задолженности.</div>
+      <div class="rr-wrap">
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-req">REQ</span><span class="rr-label">Request body</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th><th></th></tr></thead><tbody>
+            <tr><td><span class="fn">state_duty</span></td><td><span class="ft">decimal</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">representative_fee</span></td><td><span class="ft">decimal</span></td><td><span class="fo">opt</span></td></tr>
+            <tr><td><span class="fn">payment_doc_url</span></td><td><span class="ft">string</span></td><td><span class="fo">opt</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="rr-box">
+          <div class="rr-hdr" onclick="togRR(this)"><span class="rr-badge-res">RES</span><span class="rr-label">Response 200</span><span class="rr-chv">▶</span></div>
+          <div class="rr-body"><table class="ftable"><thead><tr><th>Поле</th><th>Тип</th></tr></thead><tbody>
+            <tr><td><span class="fn">loan_id</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">total_court_costs</span></td><td><span class="ft">decimal</span></td></tr>
+            <tr><td><span class="fn">added_by</span></td><td><span class="ft">uuid</span></td></tr>
+            <tr><td><span class="fn">added_at</span></td><td><span class="ft">datetime</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="footer">
+  <span>МФО Юникредо · ТЗ Backend · v1.0 Draft</span>
+  <span>19.03.2026</span>
+</div>
+</div>
+
+<script>
+function togMod(h) {
+  const b = h.nextElementSibling;
+  const c = h.querySelector('.chv');
+  const open = b.classList.contains('open');
+  b.classList.toggle('open', !open);
+  c.classList.toggle('open', !open);
+}
+function togRR(h) {
+  const b = h.nextElementSibling;
+  const c = h.querySelector('.rr-chv');
+  const open = b.classList.contains('open');
+  b.classList.toggle('open', !open);
+  c.classList.toggle('open', !open);
+}
+</script>
+</body>
+</html>
